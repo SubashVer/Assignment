@@ -20,21 +20,26 @@ jobs:
         VALIDATE_ALL_CODEBASE: false
         DEFAULT_BRANCH: main
         GITHUB_TOKEN: ${{ secrets.BOSE_TOKEN}}
+          
+    # - name: Get registration token
+    #   id: getRegToken
+    #   run: |
+    #   curl -X POST -H \"Accept: application/vnd.github.v3+json\"  -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/myprofile/myrepo/actions/runners/registration-token      
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: java
-        
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
 
-    - name: Perform CodeQL Analysis
-      #uses: github/codeql-action/analyze@46a6823b81f2d7c67ddf123851eea88365bc8a67        
-      uses: github/codeql-action/analyze@v2
-      with:
-        upload: False
-        output: sarif-results
+ #   - name: Initialize CodeQL
+  #    uses: github/codeql-action/init@v2
+  #   with:
+  #    languages: java
+#    - name: Autobuild
+#     uses: github/codeql-action/autobuild@v2
+
+    # - name: Perform CodeQL Analysis
+    #   #uses: github/codeql-action/analyze@46a6823b81f2d7c67ddf123851eea88365bc8a67        
+    #   uses: github/codeql-action/analyze@v2
+    #   with:
+    #     upload: False
+    #     output: sarif-results
 
     - name: setup java
       uses: actions/setup-java@v3
@@ -65,4 +70,8 @@ jobs:
       with:
         push: true
         tags: bosverticurl/bosejavaapp
-        
+    
+    - name: Get registration token
+      id: getRegToken
+      run: |
+      curl -X POST -H \"Accept: application/vnd.github.v3+json\"  -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/myprofile/myrepo/actions/runners/registration-token      
