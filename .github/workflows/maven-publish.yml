@@ -19,7 +19,7 @@ jobs:
       env:
         VALIDATE_ALL_CODEBASE: false
         DEFAULT_BRANCH: main
-        GITHUB_TOKEN: ${{ secrets.SUBTOKEN }}
+        GITHUB_TOKEN: ${{ secrets.BOSE_TOKEN}}
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
