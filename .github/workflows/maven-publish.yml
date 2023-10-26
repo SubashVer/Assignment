@@ -1,68 +1,71 @@
-name: Maven Build and Test
+name: cicd
 
 on:
   push:
     branches:
       - master
-  workflow_dispatch:      
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
+  cicd:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: checkout
+        uses: actions/checkout@v4
 
-#    - name: Run Super-Linter
-#      uses: github/super-linter@v4
-#      env: 
-#        DEFAULT_BRANCH: master
-#        VALIDATE_ALL_CODEBASE: true
-#        GITHUB_TOKEN: ${{ secrets.VILAS_GITHUB_TOKEN }}
+      - name: Lint Code Base
+        uses: super-linter/super-linter@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.SUBTOKEN }}
 
-    # - name: Get registration token
-    #   id: getRegToken
-    #   run: |
-    #   curl -X POST -H \"Accept: application/vnd.github.v3+json\"  -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/myprofile/myrepo/actions/runners/registration-token
-    # - name: Initialize CodeQL
-    #   uses: github/codeql-action/init@v2
-    #   with:
-    #     languages: java
-            
-    # - name: Autobuild
-    #   uses: github/codeql-action/autobuild@v2
+      # - name: Get registration token
+      #   id: getRegToken
+      #   run: |
+      #     curl -X POST -H "Accept: application/vnd.github.v3+json" -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/myprofile/myrepo/actions/runners/registration-token
 
-    # - name: Perform CodeQL Analysis
-    #   #uses: github/codeql-action/analyze@46a6823b81f2d7c67ddf123851eea88365bc8a67        
-    #   uses: github/codeql-action/analyze@v2
-    #   with:
-    #     upload: False
-    #     output: sarif-results
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'  # You can specify your desired Java version here
-        distribution: 'temurin' #other option distribution: 'adopt' ref. https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-        
-    - name: Build with Maven
-      run: mvn clean install  # Replace with your actual Maven build command
+      # - name: Initialize CodeQL
+      #   uses: github/codeql-action/init@v2
+      #   with:
+      #     languages: java
 
-    - name: Run Maven tests
-      run: mvn test  # Run Maven tests
-      
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v3
+      # - name: Autobuild
+      #   uses: github/codeql-action/autobuild@v2
 
-    - name: Dockerize application
-      run: |
-        docker build -t bosverticurl/Bosejavaapp .
-       
-    - name: Login to Docker
-      uses: docker/login-action@v3
-      with: 
-        username: ${{ secrets.DOCKER_USERNAME}} 
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        
-    - name: Push to DockerHub
-      run: docker push bosverticurl/Bosejavaapp  
+      # - name: Perform CodeQL Analysis
+      #   uses: github/codeql-action/analyze@v2
+      #   with:
+      #     upload: false
+      #     output: sarif-results
+
+      - name: setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '11'
+
+      - name: build the code
+        run: mvn clean package
+
+      - name: run unit test
+        run: mvn test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: build docker image
+        run: docker build -t bosverticurl/boseapp .
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: bosverticurl/boseapp
